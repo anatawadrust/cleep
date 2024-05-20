@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import { getProveedores, addProveedor } from './api';
+import { getProveedores, getClientes } from './api';
+import AgregarProveedor from './AgregarProveedor';
+import AgregarCliente from './AgregarCliente';
 
 function App() {
+  const [currentSection, setCurrentSection] = useState('proveedores');
   const [proveedores, setProveedores] = useState([]);
-  const [nombre, setNombre] = useState('');
-  const [contacto, setContacto] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [direccion, setDireccion] = useState('');
-  const [error, setError] = useState('');
+  const [clientes, setClientes] = useState([]);
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -20,31 +19,18 @@ function App() {
       }
     };
 
+    const fetchClientes = async () => {
+      try {
+        const data = await getClientes();
+        setClientes(data);
+      } catch (error) {
+        console.error('Error fetching clientes:', error);
+      }
+    };
+
     fetchProveedores();
+    fetchClientes();
   }, []);
-
-  const handleAddProveedor = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (!nombre || !contacto || !telefono || !direccion) {
-      setError('Todos los campos son obligatorios');
-      return;
-    }
-
-    try {
-      const nuevoProveedor = { nombre, contacto, telefono, direccion };
-      const data = await addProveedor(nuevoProveedor);
-      setProveedores([...proveedores, { codigo: data.id, nombre, contacto, telefono, direccion }]);
-      setNombre('');
-      setContacto('');
-      setTelefono('');
-      setDireccion('');
-    } catch (error) {
-      console.error('Error adding proveedor:', error);
-      setError('Error agregando el proveedor');
-    }
-  };
 
   return (
     <div className="dashboard">
@@ -52,9 +38,8 @@ function App() {
         <h2>Menú</h2>
         <nav>
           <ul>
-            <li><a href="#!">Inicio</a></li>
-            <li><a href="#!">Proveedores</a></li>
-            <li><a href="#!">Configuración</a></li>
+            <li><a href="#!" onClick={() => setCurrentSection('proveedores')}>Proveedores</a></li>
+            <li><a href="#!" onClick={() => setCurrentSection('clientes')}>Clientes</a></li>
           </ul>
         </nav>
       </div>
@@ -62,60 +47,62 @@ function App() {
         <div className="header">
           <h1>Cleep.com!</h1>
         </div>
-        <div className="card">
-          <h2>Lista de Proveedores</h2>
-          {error && <p className="error">{error}</p>}
-          <ul>
-            <li className="header">
-              <span>Nombre</span>
-              <span>Contacto</span>
-              <span>Teléfono</span>
-              <span>Dirección</span>
-            </li>
-            {proveedores.map(proveedor => (
-              <li key={proveedor.codigo}>
-                <span>{proveedor.nombre}</span>
-                <span>{proveedor.contacto}</span>
-                <span>{proveedor.telefono}</span>
-                <span>{proveedor.direccion}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="card">
-          <h2>Agregar Proveedor</h2>
-          <form onSubmit={handleAddProveedor}>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Contacto"
-              value={contacto}
-              onChange={(e) => setContacto(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Teléfono"
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Dirección"
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-              required
-            />
-            <button type="submit">Agregar Proveedor</button>
-          </form>
-        </div>
+        {currentSection === 'proveedores' && (
+          <>
+            <div className="card">
+              <h2>Lista de Proveedores</h2>
+              <ul>
+                <li className="header">
+                  <span>Nombre</span>
+                  <span>Contacto</span>
+                  <span>Teléfono</span>
+                  <span>Dirección</span>
+                </li>
+                {proveedores.map(proveedor => (
+                  <li key={proveedor.codigo}>
+                    <span>{proveedor.nombre}</span>
+                    <span>{proveedor.contacto}</span>
+                    <span>{proveedor.telefono}</span>
+                    <span>{proveedor.direccion}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <AgregarProveedor proveedores={proveedores} setProveedores={setProveedores} />
+          </>
+        )}
+        {currentSection === 'clientes' && (
+          <>
+            <div className="card">
+              <h2>Lista de Clientes</h2>
+              <ul>
+                <li className="header">
+                  <span>Nombre</span>
+                  <span>Apellido</span>
+                  <span>Correo</span>
+                  <span>Fecha de Nacimiento</span>
+                  <span>Teléfono</span>
+                  <span>País</span>
+                  <span>Ciudad</span>
+                  <span>Contraseña</span>
+                </li>
+                {clientes.map(cliente => (
+                  <li key={cliente.codigo}>
+                    <span>{cliente.nombre}</span>
+                    <span>{cliente.apellido}</span>
+                    <span>{cliente.correo}</span>
+                    <span>{cliente.fecha_nac}</span>
+                    <span>{cliente.telefono}</span>
+                    <span>{cliente.pais}</span>
+                    <span>{cliente.ciudad}</span>
+                    <span>{cliente.contrasena}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <AgregarCliente clientes={clientes} setClientes={setClientes} />
+          </>
+        )}
       </div>
     </div>
   );
