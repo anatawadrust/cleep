@@ -24,22 +24,22 @@ export const addProveedor = async (nuevoProveedor) => {
   }
 };
 
-export const getClientes = async () => {
+export const updateProveedor = async (codigo, updatedProveedor) => {
   try {
-    const response = await api.get('/cliente');
+    const response = await api.put(`/proveedor/${codigo}`, updatedProveedor);
     return response.data;
   } catch (error) {
-    console.error('Error fetching clientes:', error);
+    console.error('Error updating proveedor:', error);
     throw error;
   }
 };
 
-export const addCliente = async (nuevoCliente) => {
+export const deleteProveedor = async (codigo) => {
   try {
-    const response = await api.post('/cliente', nuevoCliente);
+    const response = await api.delete(`/proveedor/${codigo}`);
     return response.data;
   } catch (error) {
-    console.error('Error adding cliente:', error);
+    console.error('Error deleting proveedor:', error);
     throw error;
   }
 };

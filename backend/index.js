@@ -48,27 +48,30 @@ app.post('/api/proveedor', (req, res) => {
   });
 });
 
-// Endpoint para obtener datos de la tabla clientes
-app.get('/api/cliente', (req, res) => {
-  connection.query('SELECT * FROM clientes', (err, results) => {
+// Endpoint para actualizar un proveedor existente
+app.put('/api/proveedor/:codigo', (req, res) => {
+  const { codigo } = req.params;
+  const { nombre, contacto, telefono, direccion } = req.body;
+  const query = 'UPDATE proveedor SET nombre = ?, contacto = ?, telefono = ?, direccion = ? WHERE codigo = ?';
+  connection.query(query, [nombre, contacto, telefono, direccion, codigo], (err, results) => {
     if (err) {
-      console.error('Error fetching clientes:', err);
+      console.error('Error updating proveedor:', err);
       return res.status(500).send(err);
     }
-    res.json(results);
+    res.status(200).json({ message: 'Proveedor updated successfully' });
   });
 });
 
-// Endpoint para agregar un nuevo cliente
-app.post('/api/cliente', (req, res) => {
-  const { nombre, apellido, correo, fecha_nac, telefono, pais, ciudad, contrasena } = req.body;
-  const query = 'INSERT INTO clientes (nombre, apellido, correo, fecha_nac, telefono, pais, ciudad, contrasena) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  connection.query(query, [nombre, apellido, correo, fecha_nac, telefono, pais, ciudad, contrasena], (err, results) => {
+// Endpoint para eliminar un proveedor existente
+app.delete('/api/proveedor/:codigo', (req, res) => {
+  const { codigo } = req.params;
+  const query = 'DELETE FROM proveedor WHERE codigo = ?';
+  connection.query(query, [codigo], (err, results) => {
     if (err) {
-      console.error('Error adding cliente:', err);
+      console.error('Error deleting proveedor:', err);
       return res.status(500).send(err);
     }
-    res.status(201).json({ message: 'Cliente added successfully', id: results.insertId });
+    res.status(200).json({ message: 'Proveedor deleted successfully' });
   });
 });
 
